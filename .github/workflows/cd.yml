@@ -126,7 +126,13 @@ jobs:
 
     # Build the Windows Application Packaging project for Dev and Prod_Sideload
     - name: Build the Windows Application Packaging Project (wapproj) for ${{ matrix.ChannelName }}
-      run: msbuild $env:Solution_Path /p:Platform=$env:TargetPlatform /p:Configuration=$env:Configuration /p:UapAppxPackageBuildMode=$env:BuildMode /p:AppxBundle=$env:AppxBundle /p:AppxPackageSigningEnabled=$env:AppxPackageSigningEnabled
+      run: msbuild $env:Solution_Path `
+        /p:Platform=${{ matrix.targetPlatform }} `
+        /p:Configuration=${{ matrix.Configuration }} `
+        /p:UapAppxPackageBuildMode=SideloadOnly `
+        /p:AppxBundle=Never `
+        /p:GenerateAppInstallerFile=True `
+        /p:AppxPackageSigningEnabled=false
       if: matrix.ChannelName != 'Prod_Store'
       env:
         AppxBundle: Never
@@ -139,7 +145,13 @@ jobs:
 
     # Build the Windows Application Packaging project for Prod_Store
     - name: Build the Windows Application Packaging Project (wapproj) for ${{ matrix.ChannelName }}
-      run: msbuild $env:Solution_Path /p:Platform=$env:TargetPlatform /p:Configuration=$env:Configuration /p:UapAppxPackageBuildMode=$env:BuildMode /p:AppxBundle=$env:AppxBundle /p:GenerateAppInstallerFile=$env:GenerateAppInstallerFile /p:AppxPackageSigningEnabled=$env:AppxPackageSigningEnabled
+      run: msbuild $env:Solution_Path `
+        /p:Platform=${{ matrix.targetPlatform }} `
+        /p:Configuration=${{ matrix.Configuration }} `
+        /p:UapAppxPackageBuildMode=StoreUpload `
+        /p:AppxBundle=Never `
+        /p:GenerateAppInstallerFile=False `
+        /p:AppxPackageSigningEnabled=false
       if: matrix.ChannelName == 'Prod_Store'
       env:
         AppxBundle: Never
