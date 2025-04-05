@@ -56,7 +56,7 @@ jobs:
           - channel: Prod_Store
             Configuration: Release
             ChannelName: Prod_Store
-            DistributionUrl: https://microsoft.github.io/github-actions-for-desktop-apps-distribution-prod
+            DistributionUrl:
             MsixPackageId: MyWPFApp.DevOpsDemo.ProdStore
             MsixPublisherId: CN=GitHubActionsDemo
             MsixPackageDisplayName: MyWPFApp (ProdStore)
@@ -66,8 +66,7 @@ jobs:
     env:
       App_Packages_Archive: AppPackages.zip
       App_Packages_Directory: AppPackages
-      # SigningCertificate: GitHubActionsDemo.pfx
-      AppxPackageSigningEnabled: false  # In order to disable signing certificate
+      SigningCertificate: GitHubActionsDemo.pfx
       Solution_Path: MyWpfApp.sln
       Test_Project_Path: MyWpfApp.Tests\MyWpfApp.Tests.csproj
       Wpf_Project_Path: MyWpfApp\MyWpfApp.csproj
@@ -108,14 +107,14 @@ jobs:
         $manifest.Package.Applications.Application.VisualElements.DisplayName = "${{ matrix.MsixPackageDisplayName }}"
         $manifest.save(".\$env:Wap_Project_Directory\Package.appxmanifest")
 
-    # # Decode the Base64 encoded Pfx
-    # - name: Decode the Pfx
-    #   run: |
-    #     $pfx_cert_byte = [System.Convert]::FromBase64String("${{ secrets.Base64_Encoded_Pfx }}")
-    #     $currentDirectory = Get-Location
-    #     $certificatePath = Join-Path -Path $currentDirectory -ChildPath $env:Wap_Project_Directory -AdditionalChildPath $env:SigningCertificate
-    #     [IO.File]::WriteAllBytes("$certificatePath", $pfx_cert_byte)
-    #   if: matrix.ChannelName != 'Prod_Store'
+    # Decode the Base64 encoded Pfx
+    - name: Decode the Pfx
+      run: |
+        $pfx_cert_byte = [System.Convert]::FromBase64String("${{ secrets.Base64_Encoded_Pfx }}")
+        $currentDirectory = Get-Location
+        $certificatePath = Join-Path -Path $currentDirectory -ChildPath $env:Wap_Project_Directory -AdditionalChildPath $env:SigningCertificate
+        [IO.File]::WriteAllBytes("$certificatePath", $pfx_cert_byte)
+      if: matrix.ChannelName != 'Prod_Store'
 
     # Restore the application
     - name:  Restore the Wpf application to populate the obj folder
@@ -126,13 +125,7 @@ jobs:
 
     # Build the Windows Application Packaging project for Dev and Prod_Sideload
     - name: Build the Windows Application Packaging Project (wapproj) for ${{ matrix.ChannelName }}
-      run: msbuild $env:Solution_Path `
-        /p:Platform=${{ matrix.targetPlatform }} `
-        /p:Configuration=${{ matrix.Configuration }} `
-        /p:UapAppxPackageBuildMode=SideloadOnly `
-        /p:AppxBundle=Never `
-        /p:GenerateAppInstallerFile=True `
-        /p:AppxPackageSigningEnabled=false
+      run: msbuild $env:Solution_Path /p:Platform=$env:TargetPlatform /p:Configuration=$env:Configuration /p:UapAppxPackageBuildMode=$env:BuildMode /p:AppxBundle=$env:AppxBundle /p:PackageCertificateKeyFile=$env:SigningCertificate /p:PackageCertificatePassword=${{ secrets.Pfx_Key }}
       if: matrix.ChannelName != 'Prod_Store'
       env:
         AppxBundle: Never
@@ -141,17 +134,10 @@ jobs:
         Configuration: ${{ matrix.Configuration }}
         GenerateAppInstallerFile: True
         TargetPlatform: ${{ matrix.targetplatform }}
-        AppxPackageSigningEnabled: false  # Disable signing
 
     # Build the Windows Application Packaging project for Prod_Store
     - name: Build the Windows Application Packaging Project (wapproj) for ${{ matrix.ChannelName }}
-      run: msbuild $env:Solution_Path `
-        /p:Platform=${{ matrix.targetPlatform }} `
-        /p:Configuration=${{ matrix.Configuration }} `
-        /p:UapAppxPackageBuildMode=StoreUpload `
-        /p:AppxBundle=Never `
-        /p:GenerateAppInstallerFile=False `
-        /p:AppxPackageSigningEnabled=false
+      run: msbuild $env:Solution_Path /p:Platform=$env:TargetPlatform /p:Configuration=$env:Configuration /p:UapAppxPackageBuildMode=$env:BuildMode /p:AppxBundle=$env:AppxBundle /p:GenerateAppInstallerFile=$env:GenerateAppInstallerFile /p:AppxPackageSigningEnabled=$env:AppxPackageSigningEnabled
       if: matrix.ChannelName == 'Prod_Store'
       env:
         AppxBundle: Never
@@ -161,10 +147,10 @@ jobs:
         GenerateAppInstallerFile: False
         TargetPlatform: ${{ matrix.targetplatform }}
 
-    # # Remove the .pfx
-    # - name: Remove the .pfx
-    #   run: Remove-Item -path $env:Wap_Project_Directory\$env:SigningCertificate
-    #   if: matrix.ChannelName != 'Prod_Store'
+    # Remove the .pfx
+    - name: Remove the .pfx
+      run: Remove-Item -path $env:Wap_Project_Directory\$env:SigningCertificate
+      if: matrix.ChannelName != 'Prod_Store'
 
     # Archive the package
     - name: Create archive
