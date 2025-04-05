@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="15.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <PropertyGroup Condition="'$(VisualStudioVersion)' == '' or '$(VisualStudioVersion)' &lt; '15.0'">
     <VisualStudioVersion>15.0</VisualStudioVersion>
@@ -39,7 +39,10 @@
     <TargetPlatformMinVersion>10.0.17763.0</TargetPlatformMinVersion>
     <DefaultLanguage>en-US</DefaultLanguage>
     <!-- True/false. Sign the output packages. Default is true. -->
+    <!-- <AppxPackageSigningEnabled>True</AppxPackageSigningEnabled> -->
     <AppxPackageSigningEnabled>False</AppxPackageSigningEnabled>
+    <!-- Skip timestamp checks -->
+    <AppxPackageSigningTimestampUrl></AppxPackageSigningTimestampUrl>
     <!-- Values: StoreUpload, CI, SideLoadOnly. Default is StoreUpload.
          StoreUpload = appxupload + sideload
          CI = appxupload
@@ -51,7 +54,8 @@
     <!-- Generate .appinstaller and HTML -->
     <GenerateAppInstallerFile>True</GenerateAppInstallerFile>
     <!-- Generate architecture specific packages. Values: x86|x64|arm|arm64 -->
-    <AppxBundlePlatforms>neutral</AppxBundlePlatforms>
+    <!-- <AppxBundlePlatforms>neutral</AppxBundlePlatforms> -->
+    <AppxBundlePlatforms>x64</AppxBundlePlatforms>
     <!-- App installer file base url -->
     <AppInstallerUri>https://microsoft.github.io/github-actions-for-desktop-apps-distribution-local</AppInstallerUri>
     <AppxAutoIncrementPackageRevision>False</AppxAutoIncrementPackageRevision>
@@ -62,22 +66,28 @@
     <AppxPackageSigningTimestampDigestAlgorithm>SHA256</AppxPackageSigningTimestampDigestAlgorithm>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-    <AppxBundle>Always</AppxBundle>
+  <!-- <AppxBundle>Always</AppxBundle> -->
+    <AppxBundle>Never</AppxBundle>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
-    <AppxBundle>Always</AppxBundle>
+  <!-- <AppxBundle>Always</AppxBundle> -->
+    <AppxBundle>Never</AppxBundle>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x86'">
-    <AppxBundle>Always</AppxBundle>
+  <!-- <AppxBundle>Always</AppxBundle> -->
+    <AppxBundle>Never</AppxBundle>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
-    <AppxBundle>Always</AppxBundle>
+  <!-- <AppxBundle>Always</AppxBundle> -->
+    <AppxBundle>Never</AppxBundle>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
-    <AppxBundle>Always</AppxBundle>
+  <!-- <AppxBundle>Always</AppxBundle> -->
+    <AppxBundle>Never</AppxBundle>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x86'">
-    <AppxBundle>Always</AppxBundle>
+  <!-- <AppxBundle>Always</AppxBundle> -->
+    <AppxBundle>Never</AppxBundle>
   </PropertyGroup>
   <ItemGroup>
     <AppxManifest Include="Package.appxmanifest">
@@ -86,7 +96,7 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="Images\*" />
-    <None Include="MyWPFApp.Package_TemporaryKey.pfx" />
+  <!-- <None Include="MyWPFApp.Package_TemporaryKey.pfx" /> -->
     <Content Include="Package.appinstaller" />
   </ItemGroup>
   <ItemGroup>
